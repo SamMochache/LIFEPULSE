@@ -1,2 +1,12 @@
 #virtual environment
 thread/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+#migrations
+migrations/
+
+# SQLite database files
+*.sqlite3

@@ -113,6 +113,14 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or smtp.sendgrid.net, etc.
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_ADDRESS' ) # Your email address
+EMAIL_HOST_PASSWORD =os.getenv('EMAIL_PASSWORD')  # Not your normal password!
+DEFAULT_FROM_EMAIL = f"Health Tracker <{EMAIL_HOST_USER}>"  # Your email address
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

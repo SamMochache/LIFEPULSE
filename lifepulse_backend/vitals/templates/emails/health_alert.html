@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; }
+    .card {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 { color: #dc3545; }
+    .value { font-size: 18px; color: #007bff; margin-top: 10px; }
+    .footer {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>⚠️ Health Alert</h2>
+    <p>Hello {{ user.first_name|default:"User" }},</p>
+    <p>An abnormal <strong>{{ vital_type|capfirst }}</strong> value was detected:</p>
+    <div class="value">
+      {{ value }}
+    </div>
+    <p>Please log into your Health Tracker app for details.</p>
+    <div class="footer">
+      &copy; {{ year }} Lifepulse Health Tracker
+    </div>
+  </div>
+</body>
+</html>

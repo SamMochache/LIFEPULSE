@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import (
+    AlertViewSet,
     BodyTemperatureRecordViewSet,
     ExportVitalCSVView,
     SpO2RecordViewSet,
@@ -25,6 +26,7 @@ router.register(r'bloodsugar', BloodSugarRecordViewSet, basename='bloodsugar')
 router.register(r'steps', StepCountRecordViewSet, basename='stepcountrecord')
 router.register(r'spo2', SpO2RecordViewSet, basename='spo2record')
 router.register(r'temperature', BodyTemperatureRecordViewSet, basename='bodytemperaturerecord')
+router.register(r'alerts', AlertViewSet, basename='alerts')
 
 # ✅ Append timeline path correctly
 urlpatterns = router.urls + [

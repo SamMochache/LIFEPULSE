@@ -91,3 +91,23 @@ class BodyTemperatureRecord(models.Model):
 
     def __str__(self):
         return f"{self.user} - Temp {self.temperature}°C on {self.date}"
+    
+class Alert(models.Model):
+    VITAL_TYPES = [
+        ("bp", "Blood Pressure"),
+        ("hr", "Heart Rate"),
+        ("spo2", "Oxygen Level"),
+        ("sleep", "Sleep"),
+        ("temp", "Body Temp"),
+        ("sugar", "Blood Sugar"),
+        ("weight", "Weight"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    vital_type = models.CharField(max_length=20, choices=VITAL_TYPES)
+    message = models.TextField()
+    date = models.DateField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.vital_type.upper()} Alert"

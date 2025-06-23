@@ -4,9 +4,14 @@ thread/
 # Python cache files
 __pycache__/
 *.py[cod]
+pgdata/
+
 
 #migrations
 migrations/
 
 # SQLite database files
 *.sqlite3
+
+#environment variables
+.env

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vitals, SleepRecord, WeightRecord, HeartRateRecord, BloodPressureRecord, BloodSugarRecord
+from .models import Vitals, SleepRecord, WeightRecord, HeartRateRecord, BloodPressureRecord, BloodSugarRecord, StepCountRecord, SpO2Record, BodyTemperatureRecord
 
 class VitalsSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -38,3 +38,26 @@ class BloodSugarRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = BloodSugarRecord
         fields = '__all__'
+
+
+class StepCountRecordSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = StepCountRecord
+        fields = '__all__'
+        read_only_fields = ['user']
+
+class SpO2RecordSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = SpO2Record
+        fields = '__all__'
+        read_only_fields = ['user']
+
+class BodyTemperatureRecordSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = BodyTemperatureRecord
+        fields = '__all__'
+        read_only_fields = ['user']

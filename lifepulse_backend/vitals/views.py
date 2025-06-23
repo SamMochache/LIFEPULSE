@@ -1,11 +1,11 @@
 from rest_framework import viewsets, permissions
 from .models import (
-    Vitals, SleepRecord, WeightRecord,
-    HeartRateRecord, BloodPressureRecord, BloodSugarRecord
+    BodyTemperatureRecord, SpO2Record, StepCountRecord, Vitals, SleepRecord, WeightRecord,
+    HeartRateRecord, BloodPressureRecord, BloodSugarRecord,
 )
 from .serializers import (
-    VitalsSerializer, SleepRecordSerializer, WeightRecordSerializer,
-    HeartRateRecordSerializer, BloodPressureRecordSerializer, BloodSugarRecordSerializer
+    BodyTemperatureRecordSerializer, SpO2RecordSerializer, StepCountRecordSerializer, VitalsSerializer, SleepRecordSerializer, WeightRecordSerializer,
+    HeartRateRecordSerializer, BloodPressureRecordSerializer, BloodSugarRecordSerializer, 
 )
 
 
@@ -76,6 +76,37 @@ class BloodSugarRecordViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return BloodSugarRecord.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class StepCountRecordViewSet(viewsets.ModelViewSet):
+    serializer_class = StepCountRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return StepCountRecord.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class SpO2RecordViewSet(viewsets.ModelViewSet):
+    serializer_class = SpO2RecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return SpO2Record.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class BodyTemperatureRecordViewSet(viewsets.ModelViewSet):
+    serializer_class = BodyTemperatureRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BodyTemperatureRecord.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

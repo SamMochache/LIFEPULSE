@@ -111,3 +111,18 @@ class Alert(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.vital_type.upper()} Alert"
+
+class Reminder(models.Model):
+    REMINDER_TYPES = (
+        ('medication', 'Medication'),
+        ('appointment', 'Appointment'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
+    message = models.CharField(max_length=255)
+    remind_at = models.DateTimeField()
+    notified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.reminder_type} - {self.message} ({self.user.username})"

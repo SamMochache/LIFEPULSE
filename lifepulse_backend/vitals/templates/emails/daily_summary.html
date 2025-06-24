@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; }
+        h2 { color: #2c3e50; }
+        .vital { margin-bottom: 10px; }
+        .label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🌿 Hello {{ user.first_name|default:user.username }},</h2>
+        <p>Here is your health summary for {{ date }}:</p>
+        <div class="vital"><span class="label">❤️ Heart Rate:</span> {{ summary.heart_rate.bpm|default:"No data" }}</div>
+        <div class="vital"><span class="label">🩺 Blood Pressure:</span> 
+            {% if summary.blood_pressure %}
+                {{ summary.blood_pressure.systolic }}/{{ summary.blood_pressure.diastolic }} mmHg
+            {% else %}
+                No data
+            {% endif %}
+        </div>
+        <div class="vital"><span class="label">🩸 Blood Sugar:</span> {{ summary.blood_sugar.blood_sugar|default:"No data" }}</div>
+        <div class="vital"><span class="label">🌡️ Temperature:</span> {{ summary.temperature.temperature|default:"No data" }}°C</div>
+        <div class="vital"><span class="label">🫁 SpO₂:</span> {{ summary.spo2.spo2|default:"No data" }}%</div>
+        <p>Stay healthy, and we'll keep an eye on things! 💚</p>
+        <hr>
+        <small>LifePulse | {{ year }}</small>
+    </div>
+</body>
+</html>

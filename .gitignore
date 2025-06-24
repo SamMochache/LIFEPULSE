@@ -15,3 +15,6 @@ migrations/
 
 #environment variables
 .env
+
+#static files
+staticfiles/

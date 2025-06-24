@@ -1,28 +1,24 @@
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.conf import settings
-from .models import Alert
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 from datetime import datetime
+from .models import Alert
+from .tasks import send_html_email_task  # Celery task
 
 def trigger_alert(user, vital_type, value, thresholds, message_template):
     def send_html_email(subject, message, value_display):
         if not user.email:
             return
 
-        html_content = render_to_string("emails/health_alert.html", {
-            "user": user,
-            "vital_type": vital_type,
-            "value": value_display,
-            "year": datetime.now().year,
-        })
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[user.email],
+        # Use Celery task instead of direct sending
+        send_html_email_task.delay(
+            user.email,
+            subject,
+            message,
+            vital_type,
+            value_display,
+            user.first_name or user.username,
         )
-        email.attach_alternative(html_content, "text/html")
-        email.send(fail_silently=True)
 
     if isinstance(value, tuple):  # For BP
         systolic, diastolic = value

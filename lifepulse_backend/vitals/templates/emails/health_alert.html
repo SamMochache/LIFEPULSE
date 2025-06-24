@@ -23,13 +23,12 @@
 </head>
 <body>
   <div class="card">
-    <h2>⚠️ Health Alert</h2>
-    <p>Hello {{ user.first_name|default:"User" }},</p>
-    <p>An abnormal <strong>{{ vital_type|capfirst }}</strong> value was detected:</p>
-    <div class="value">
-      {{ value }}
-    </div>
-    <p>Please log into your Health Tracker app for details.</p>
+    <h2>Health Alert 🚨</h2>
+    <p>Hi {{ user_name }},</p>
+    <p>Your recent <strong>{{ vital_type|title }}</strong> reading was <strong>{{ value }}</strong>.</p>
+    <p>Please review your health dashboard and take appropriate action if needed.</p>
+    <p style="margin-top: 30px;">Stay well,<br><strong>LifePulse Health Tracker</strong></p>
+    <hr>
     <div class="footer">
       &copy; {{ year }} Lifepulse Health Tracker
     </div>

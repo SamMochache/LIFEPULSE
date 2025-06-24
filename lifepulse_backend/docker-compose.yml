@@ -8,13 +8,47 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env  # Changed from ./core/.env
+      - .env
     depends_on:
       - db
+      - redis
     environment:
       - PYTHONUNBUFFERED=1
       - DJANGO_SETTINGS_MODULE=core.settings
-  
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn core.wsgi:application --bind 0.0.0.0:8000"
+
+  celery:
+    build: .
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
   db:
     image: postgres:15
     environment:
@@ -30,5 +64,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
 volumes:
   pgdata:
+  redisdata:

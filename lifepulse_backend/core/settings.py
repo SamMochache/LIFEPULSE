@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'vitals',
+    'django_celery_beat'
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -121,6 +122,14 @@ EMAIL_HOST_USER = os.getenv('EMAIL_ADDRESS' ) # Your email address
 EMAIL_HOST_PASSWORD =os.getenv('EMAIL_PASSWORD')  # Not your normal password!
 DEFAULT_FROM_EMAIL = f"Health Tracker <{EMAIL_HOST_USER}>"  # Your email address
 
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -156,7 +165,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

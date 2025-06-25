@@ -41,6 +41,7 @@ services:
     depends_on:
       - backend
       - redis
+      - db
 
   redis:
     image: redis:7

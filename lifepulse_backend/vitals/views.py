@@ -1,7 +1,9 @@
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from users.models import User
+from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 import csv
@@ -284,3 +286,30 @@ class AlertViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class RegisterUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role", "user")  # optional field
+
+        if not all([username, email, password]):
+            return Response({"detail": "All fields are required."}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"detail": "Username already exists."}, status=400)
+
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password),
+            role=role,  # assuming you have a role field in User model
+        )
+
+        # optionally add role to a profile model here
+
+        return Response({"detail": "User registered successfully."}, status=201)

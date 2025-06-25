@@ -12,7 +12,8 @@ from .views import (
     HeartRateRecordViewSet,
     BloodPressureRecordViewSet,
     BloodSugarRecordViewSet,
-    HealthTimelineView, 
+    HealthTimelineView,
+    RegisterUserView,  # ✅ make sure to import this too 
      # ✅ make sure to import this too
 )
 
@@ -32,4 +33,5 @@ router.register(r'alerts', AlertViewSet, basename='alerts')
 urlpatterns = router.urls + [
     path('timeline/', HealthTimelineView.as_view(), name='health-timeline'),
     path("export/", ExportVitalCSVView.as_view(), name="vital-export"),
+    path("register/", RegisterUserView.as_view(), name="register"),
 ]

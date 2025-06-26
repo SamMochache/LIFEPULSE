@@ -83,13 +83,10 @@ class HeartRateRecordViewSet(viewsets.ModelViewSet):
         trigger_alert(
             user=self.request.user,
             vital_type="heart_rate",
-            value=instance.bpm,
+            value=instance.resting_hr,
             thresholds=THRESHOLDS["heart_rate"],
             message_template=MESSAGES["heart_rate"]
         )
-        
-
-
 
 class BloodPressureRecordViewSet(viewsets.ModelViewSet):
     serializer_class = BloodPressureRecordSerializer
@@ -107,9 +104,6 @@ class BloodPressureRecordViewSet(viewsets.ModelViewSet):
             thresholds=THRESHOLDS["blood_pressure"],
             message_template=MESSAGES["blood_pressure"]
         )
-       
-
-
 
 class BloodSugarRecordViewSet(viewsets.ModelViewSet):
     serializer_class = BloodSugarRecordSerializer
@@ -123,13 +117,10 @@ class BloodSugarRecordViewSet(viewsets.ModelViewSet):
         trigger_alert(
             user=self.request.user,
             vital_type="blood_sugar",
-            value=instance.blood_sugar,
+            value=instance.fasting,
             thresholds=THRESHOLDS["blood_sugar"],
             message_template=MESSAGES["blood_sugar"]
         )
-        
-
-
 
 class BodyTemperatureRecordViewSet(viewsets.ModelViewSet):
     serializer_class = BodyTemperatureRecordSerializer
@@ -143,13 +134,10 @@ class BodyTemperatureRecordViewSet(viewsets.ModelViewSet):
         trigger_alert(
             user=self.request.user,
             vital_type="temperature",
-            value=instance.temperature,
+            value=float(instance.temperature),
             thresholds=THRESHOLDS["temperature"],
             message_template=MESSAGES["temperature"]
         )
-        
-
-
 
 class SpO2RecordViewSet(viewsets.ModelViewSet):
     serializer_class = SpO2RecordSerializer
@@ -163,12 +151,10 @@ class SpO2RecordViewSet(viewsets.ModelViewSet):
         trigger_alert(
             user=self.request.user,
             vital_type="spo2",
-            value=instance.spo2,
+            value=float(instance.spo2),
             thresholds=THRESHOLDS["spo2"],
             message_template=MESSAGES["spo2"]
         )
-
-
 
 class WeightRecordViewSet(viewsets.ModelViewSet):
     serializer_class = WeightRecordSerializer

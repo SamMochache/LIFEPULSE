@@ -1,10 +1,10 @@
+// src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 const AuthContext = createContext();
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 
 export const AuthProvider = ({ children }) => {
   const [authTokens, setAuthTokens] = useState(() => {
@@ -28,14 +28,16 @@ export const AuthProvider = ({ children }) => {
 
       if (response.status === 200) {
         const data = response.data;
+        const decodedUser = jwtDecode(data.access);
         setAuthTokens(data);
-        setUser(jwtDecode(data.access));
+        setUser(decodedUser);
         localStorage.setItem("authTokens", JSON.stringify(data));
-        return true;
+        return { success: true, user: decodedUser }; // ✅ return user
       }
-    } catch (error) {
-      console.error("Login failed:", error);
-      return false;
+    } catch (err) {
+      const message =
+        err.response?.data?.detail || "Invalid username or password";
+      return { success: false, message };
     }
   };
 
@@ -53,12 +55,10 @@ export const AuthProvider = ({ children }) => {
 
       if (response.status === 200) {
         const data = response.data;
-
         const updatedTokens = {
           access: data.access,
           refresh: authTokens.refresh,
         };
-
         setAuthTokens(updatedTokens);
         setUser(jwtDecode(data.access));
         localStorage.setItem("authTokens", JSON.stringify(updatedTokens));
@@ -78,13 +78,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ⏱ Background token refresh every 4.5 minutes (before 5 min token expiry)
   useEffect(() => {
     if (authTokens) {
       const interval = setInterval(() => {
         refreshToken();
-      }, 1000 * 60 * 4.5); // 4.5 minutes
-
+      }, 1000 * 60 * 4.5);
       return () => clearInterval(interval);
     }
   }, [authTokens]);

@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react"; // ✅ Added useEffect
-import { useNavigate, useLocation } from "react-router-dom"; // ✅ Added useLocation
+// src/pages/Login.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   container,
   card,
   heading,
   errorBox,
-  successBox, // ✅ Make sure this exists in your styles
+  successBox,
   input,
   button,
   footerText,
   footerLink,
-} from "../styles/loginStyles"; // Adjust path if needed
+} from "../styles/loginStyles";
 
 const Login = () => {
-  const { loginUser, user } = useAuth();
+  const { loginUser } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ To get the query string
+  const location = useLocation();
 
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // ✅ For success message
+  const [success, setSuccess] = useState("");
 
-  // ✅ Show message if redirected with ?activated=true
   useEffect(() => {
     if (location.search.includes("activated=true")) {
       setSuccess("✅ Your account has been successfully activated.");
@@ -34,17 +34,22 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await loginUser(formData.username, formData.password);
-    if (success) {
-      if (user?.role === "doctor") {
+    setError("");
+    setSuccess("");
+
+    const result = await loginUser(formData.username, formData.password);
+
+    if (result.success) {
+      const role = result.user.role;
+      if (role === "doctor") {
         navigate("/doctor");
-      } else if (user?.role === "admin") {
+      } else if (role === "admin") {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
     } else {
-      setError("Invalid username or password");
+      setError(result.message);
     }
   };
 

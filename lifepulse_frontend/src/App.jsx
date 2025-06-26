@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import VitalsForm from "./pages/VitalsForm";
+import ActivateAccount from "./pages/ActivateAccount";
 
 
 
@@ -17,6 +18,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard/>} />
       <Route path="/vitals" element={<VitalsForm />} />
+      <Route path="/activate/:uidb64/:token" element={<ActivateAccount />} />
     
     </Routes>
   );

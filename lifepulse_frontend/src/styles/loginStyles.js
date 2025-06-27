@@ -21,3 +21,5 @@ export const footerText =
 
 export const footerLink =
   "text-blue-600 cursor-pointer hover:underline";
+
+export const successBox = "bg-green-100 text-green-700 p-4 rounded-lg mb-4 text-sm";

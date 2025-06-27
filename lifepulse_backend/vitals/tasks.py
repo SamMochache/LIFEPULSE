@@ -98,3 +98,39 @@ def send_due_reminders():
 
         reminder.notified = True
         reminder.save()
+
+@shared_task
+def send_verification_email_task(email, subject, verification_link):
+    text_content = f"Hi there,\nPlease click the link below to verify your email:\n{verification_link}"
+
+    html_content = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #2c3e50;">Welcome to LifePulse!</h2>
+        <p style="font-size: 16px; color: #333;">
+          Thank you for registering. Please verify your email address by clicking the button below:
+        </p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="{verification_link}" style="background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Verify My Email
+          </a>
+        </div>
+        <p style="font-size: 14px; color: #777;">
+          If you didn’t request this, you can safely ignore this email.
+        </p>
+        <hr style="margin-top: 30px;">
+        <p style="font-size: 12px; color: #999;">&copy; 2025 LifePulse. All rights reserved.</p>
+      </div>
+    </body>
+    </html>
+    """
+
+    email_msg = EmailMultiAlternatives(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+    )
+    email_msg.attach_alternative(html_content, "text/html")
+    email_msg.send()

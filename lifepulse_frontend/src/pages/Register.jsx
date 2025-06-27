@@ -54,7 +54,8 @@ const Register = () => {
       });
 
       if (response.status === 201 || response.status === 200) {
-        navigate("/login");
+        alert("✅ Account created! Please check your email to activate your account.");
+        navigate("/check-email");
       }
     } catch (err) {
       console.error(err);

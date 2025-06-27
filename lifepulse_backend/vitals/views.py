@@ -240,7 +240,11 @@ class HealthTimelineView(APIView):
         add_avg(BodyTemperatureRecord, "temperature", "temperature")
         add_avg(SpO2Record, "spo2", "spo2")
 
-        return Response(list(timeline.values()))
+        return Response([
+    {"date": date, **data}
+    for date, data in timeline.items()
+])
+
 
 
 class ExportVitalCSVView(APIView):

@@ -3,8 +3,22 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.models import User
 
-# Custom backend logic inside the serializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+from users.models import User
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # ✅ Embed custom claims into the token
+        token["username"] = user.username
+        token["role"] = user.role
+
+        return token
+
     def validate(self, attrs):
         username = attrs.get("username")
         password = attrs.get("password")
@@ -20,9 +34,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise AuthenticationFailed("Account not activated. Please check your email.")
 
-        # Set the user manually to pass into token creation
-        self.user = user
+        self.user = user  # ✅ Required for token generation
         return super().validate(attrs)
+
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

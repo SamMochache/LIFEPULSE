@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
-  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import CSVExport from "../components/CSVExport";
@@ -22,14 +29,11 @@ import {
   alertItem,
 } from "../styles/dashboardStyles";
 
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// ...imports stay the same
 
 const Dashboard = () => {
   const { user, authTokens } = useAuth();
-  const [vitals, setVitals] = useState({});
+  const [timelineData, setTimelineData] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const navigate = useNavigate();
 
@@ -43,7 +47,7 @@ const Dashboard = () => {
     const fetchVitals = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/api/health/timeline/`, config);
-        setVitals(res.data);
+        setTimelineData(res.data);
       } catch (err) {
         console.error("Error fetching vitals", err);
       }
@@ -51,7 +55,7 @@ const Dashboard = () => {
 
     const fetchAlerts = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/alerts/`, config);
+        const res = await axios.get(`${BASE_URL}/api/health/alerts/`, config);
         setAlerts(res.data);
       } catch (err) {
         console.error("Error fetching alerts", err);
@@ -65,8 +69,7 @@ const Dashboard = () => {
   const formatChartData = (data, key = "value") =>
     data.map((entry) => ({
       date: entry.date || entry.recorded_at?.split("T")[0],
-      value: parseFloat(entry[key]),
-      ...entry,
+      value: parseFloat(entry[key]) || null,
     }));
 
   const Card = ({ title, value, unit }) => (
@@ -78,36 +81,36 @@ const Dashboard = () => {
     </div>
   );
 
+  const latest = timelineData.slice(-1)[0] || {};
+
   return (
     <div className={container}>
       <div className={headerRow}>
-        <h1 className={welcomeText}>
-          Welcome, {user?.username || "User"} 👋
-        </h1>
+        <h1 className={welcomeText}>Welcome, {user?.username || "User"} 👋</h1>
         <button onClick={() => navigate("/vitals")} className={addButton}>
           + Add Vital
         </button>
       </div>
 
       <div className={cardsGrid}>
-        <Card title="Heart Rate" value={vitals?.heart_rate?.slice(-1)[0]?.bpm || "--"} unit="bpm" />
+        <Card title="Heart Rate" value={latest?.heart_rate ?? "--"} unit="bpm" />
         <Card
           title="Blood Pressure"
           value={
-            vitals?.blood_pressure?.slice(-1)[0]
-              ? `${vitals?.blood_pressure?.slice(-1)[0].systolic}/${vitals?.blood_pressure?.slice(-1)[0].diastolic}`
+            latest?.bp_systolic && latest?.bp_diastolic
+              ? `${latest.bp_systolic}/${latest.bp_diastolic}`
               : "--"
           }
           unit="mmHg"
         />
-        <Card title="SpO2" value={vitals?.spo2?.slice(-1)[0]?.value || "--"} unit="%" />
-        <Card title="Sleep" value={vitals?.sleep?.slice(-1)[0]?.duration || "--"} unit="hrs" />
+        <Card title="SpO2" value={latest?.spo2 ?? "--"} unit="%" />
+        <Card title="Sleep" value={latest?.sleep_hours ?? "--"} unit="hrs" />
       </div>
 
       <div className={chartContainer}>
         <h2 className={sectionTitle}>Heart Rate Trend</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={formatChartData(vitals?.heart_rate || [], "bpm")}>
+          <LineChart data={formatChartData(timelineData, "heart_rate")}>
             <Line type="monotone" dataKey="value" stroke="#ef4444" />
             <CartesianGrid stroke="#ccc" />
             <XAxis dataKey="date" />

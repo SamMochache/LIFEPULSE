@@ -42,9 +42,9 @@ const Login = () => {
     if (result.success) {
       const role = result.user.role;
       if (role === "doctor") {
-        navigate("/doctor");
+        navigate("/dashboard");
       } else if (role === "admin") {
-        navigate("/admin");
+        navigate("/dashboard");
       } else {
         navigate("/dashboard");
       }

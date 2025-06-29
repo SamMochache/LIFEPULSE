@@ -235,10 +235,15 @@ class HealthTimelineView(APIView):
         add_avg(BloodPressureRecord, "diastolic", "bp_diastolic")
         add_avg(WeightRecord, "weight_kg", "weight")
         add_avg(SleepRecord, "hours_slept", "sleep_hours")
-        add_avg(BloodSugarRecord, "fasting", "blood_sugar")
         add_avg(StepCountRecord, "steps", "steps")
         add_avg(BodyTemperatureRecord, "temperature", "temperature")
         add_avg(SpO2Record, "spo2", "spo2")
+
+        for record in BloodSugarRecord.objects.filter(user=user, date__range=(start_date, end_date)):
+            d = record.date.isoformat()
+            if d in timeline:
+                timeline[d]["blood_sugar"] = record.fasting
+                timeline[d]["post_meal"] = record.post_meal
 
         return Response([
     {"date": date, **data}

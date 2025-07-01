@@ -12,7 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
-import CSVExport from "../components/CSVExport";
+import ReportExport from "../components/ReportExport";
 import { useSwipeable } from "react-swipeable";
 import {
   container,
@@ -36,6 +36,7 @@ const Dashboard = () => {
   const { user, authTokens } = useAuth();
   const [timelineData, setTimelineData] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [selectedChart, setSelectedChart] = useState("heart");
   const navigate = useNavigate();
 
@@ -310,21 +311,31 @@ const Dashboard = () => {
       </div>
 
       <div className={alertsContainer}>
-        <h2 className={sectionTitle}>Recent Alerts</h2>
-        {alerts.length > 0 ? (
-          <ul className="space-y-2">
-            {alerts.map((alert, idx) => (
-              <li key={idx} className={alertItem}>
-                [{alert.vital_type.toUpperCase()}] {alert.message}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-sm">No alerts to show.</p>
-        )}
-      </div>
+  <h2 className={sectionTitle}>Recent Alerts</h2>
+  {alerts.length > 0 ? (
+    <>
+      <ul className="space-y-2">
+        {(showAllAlerts ? alerts : alerts.slice(0, 5)).map((alert, idx) => (
+          <li key={idx} className={alertItem}>
+            [{alert.vital_type.toUpperCase()}] {alert.message}
+          </li>
+        ))}
+      </ul>
+      {alerts.length > 5 && (
+        <button
+          onClick={() => setShowAllAlerts(!showAllAlerts)}
+          className="text-sm text-blue-500 mt-2 hover:underline"
+        >
+          {showAllAlerts ? "Show Less" : "Show More"}
+        </button>
+      )}
+    </>
+  ) : (
+    <p className="text-gray-500 text-sm">No alerts to show.</p>
+  )}
+</div>
 
-      <CSVExport />
+      <ReportExport/>
     </div>
   </div>
 );

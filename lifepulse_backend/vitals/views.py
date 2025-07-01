@@ -11,6 +11,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.utils.timezone import now
+from weasyprint import HTML, CSS
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 from datetime import datetime, timedelta
 import csv
@@ -45,16 +49,18 @@ MESSAGES = {
 }
 
 # Export map
+# ✅ Corrected Export map
 VITAL_MODELS = {
-    "heart_rate": (HeartRateRecord, ["date", "bpm"]),
-    "blood_pressure": (BloodPressureRecord, ["date", "systolic", "diastolic"]),
-    "weight": (WeightRecord, ["date", "weight"]),
-    "sleep": (SleepRecord, ["date", "hours_slept"]),
-    "blood_sugar": (BloodSugarRecord, ["date", "blood_sugar"]),
+    "heart_rate": (HeartRateRecord, ["date", "resting_hr", "high_hr", "low_hr"]),
+    "blood_pressure": (BloodPressureRecord, ["date", "systolic", "diastolic", "pulse"]),
+    "weight": (WeightRecord, ["date", "weight_kg"]),
+    "sleep": (SleepRecord, ["date", "hours_slept", "sleep_quality"]),
+    "blood_sugar": (BloodSugarRecord, ["date", "fasting", "post_meal"]),
     "steps": (StepCountRecord, ["date", "steps"]),
     "temperature": (BodyTemperatureRecord, ["date", "temperature"]),
     "spo2": (SpO2Record, ["date", "spo2"]),
 }
+
 
 # -------------------------
 # Vital ViewSets
@@ -283,6 +289,76 @@ class ExportVitalCSVView(APIView):
             writer.writerow([getattr(record, field) for field in fields])
 
         return response
+
+from django.template.loader import render_to_string
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from django.http import HttpResponse
+from weasyprint import HTML, CSS
+from datetime import timedelta
+from django.utils.timezone import now
+
+from .models import (
+    HeartRateRecord, BloodPressureRecord, WeightRecord, BloodSugarRecord,
+    SleepRecord, BodyTemperatureRecord, SpO2Record, StepCountRecord
+)
+
+
+class ExportVitalPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        start_date = request.GET.get("start", (now().date() - timedelta(days=30)).isoformat())
+        end_date = request.GET.get("end", now().date().isoformat())
+
+        def format_records(qs, exclude_fields=["id", "user"]):
+            if not qs.exists():
+                return [], []
+
+            fields = [f for f in qs[0]._meta.fields if f.name not in exclude_fields]
+            headers = [f.verbose_name.capitalize().replace("_", " ") for f in fields]
+            rows = [[getattr(obj, f.name) for f in fields] for obj in qs]
+            return headers, rows
+
+        vitals_data = {}
+        for label, queryset in {
+            "Heart Rate": HeartRateRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Blood Pressure": BloodPressureRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Weight": WeightRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Blood Sugar": BloodSugarRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Sleep": SleepRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Body Temperature": BodyTemperatureRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+            "SpO₂": SpO2Record.objects.filter(user=user, date__range=(start_date, end_date)),
+            "Steps": StepCountRecord.objects.filter(user=user, date__range=(start_date, end_date)),
+        }.items():
+            headers, rows = format_records(queryset)
+            vitals_data[label] = {
+                "headers": headers,
+                "rows": rows
+            }
+
+        html = render_to_string("reports/report_template.html", {
+            "user": user,
+            "start_date": start_date,
+            "end_date": end_date,
+            "vitals": vitals_data,
+            "today": now().date()
+        })
+
+        pdf = HTML(string=html).write_pdf(stylesheets=[CSS(string="""
+            body { font-family: 'Arial', sans-serif; font-size: 12px; }
+            h1, h2, h3 { color: #1d4ed8; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+            th { background-color: #f3f4f6; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+        """)])
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename=HealthReport_{user.username}_{now().date()}.pdf'
+        return response
+
 
 # -------------------------
 # Alerts

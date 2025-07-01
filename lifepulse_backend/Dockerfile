@@ -5,8 +5,18 @@ WORKDIR /app
 
 # Install required system packages
 RUN apt-get update && apt-get install -y \
+    build-essential \
     gcc \
-    libpq-dev \
+    libpango1.0-0 \
+    libcairo2 \
+    libgdk-pixbuf2.0-0 \
+    libffi-dev \
+    libxml2 \
+    libxslt1.1 \
+    libglib2.0-dev \
+    shared-mime-info \
+    fonts-liberation \
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Health Report</title>
+</head>
+<body>
+    <h1>LifePulse Health Report</h1>
+    <p><strong>Name:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Date:</strong> {{ today }}</p>
+    <p><strong>Range:</strong> {{ start_date }} - {{ end_date }}</p>
+
+    {% for label, data in vitals.items %}
+        <h2>{{ label }}</h2>
+        {% if data.rows %}
+            <table>
+                <thead>
+                    <tr>
+                        {% for header in data.headers %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data.rows %}
+                        <tr>
+                            {% for value in row %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No records available.</p>
+        {% endif %}
+    {% endfor %}
+</body>
+</html>

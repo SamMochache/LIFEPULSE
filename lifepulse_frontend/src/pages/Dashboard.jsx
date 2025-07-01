@@ -12,7 +12,8 @@ import {
   Legend,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
-import CSVExport from "../components/CSVExport";
+import ReportExport from "../components/ReportExport";
+import { useSwipeable } from "react-swipeable";
 import {
   container,
   headerRow,
@@ -35,6 +36,8 @@ const Dashboard = () => {
   const { user, authTokens } = useAuth();
   const [timelineData, setTimelineData] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [selectedChart, setSelectedChart] = useState("heart");
   const navigate = useNavigate();
 
   const config = {
@@ -67,10 +70,14 @@ const Dashboard = () => {
   }, []);
 
   const formatChartData = (data, key = "value") =>
-    data.map((entry) => ({
-      date: entry.date || entry.recorded_at?.split("T")[0],
-      value: parseFloat(entry[key]) || null,
-    }));
+    data
+      .map((entry) => ({
+        date: entry.date,
+        value: parseFloat(entry[key]),
+      }))
+      .filter((d) => !isNaN(d.value));
+
+  const latest = timelineData.slice(-1)[0] || {};
 
   const Card = ({ title, value, unit }) => (
     <div className={card}>
@@ -81,10 +88,180 @@ const Dashboard = () => {
     </div>
   );
 
-  const latest = timelineData.slice(-1)[0] || {};
+  const chartTabs = [
+    { key: "heart", label: "Heart Rate" },
+    { key: "bp", label: "Blood Pressure" },
+    { key: "spo2", label: "SpO2" },
+    { key: "sleep", label: "Sleep" },
+    { key: "weight", label: "Weight" },
+    { key: "temperature", label: "Body Temp" },
+    { key: "sugar", label: "Blood Sugar" },
+  ];
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      const idx = chartTabs.findIndex((tab) => tab.key === selectedChart);
+      if (idx < chartTabs.length - 1) setSelectedChart(chartTabs[idx + 1].key);
+    },
+    onSwipedRight: () => {
+      const idx = chartTabs.findIndex((tab) => tab.key === selectedChart);
+      if (idx > 0) setSelectedChart(chartTabs[idx - 1].key);
+    },
+  });
+
+  const renderChart = () => {
+    switch (selectedChart) {
+      case "heart":
+        return (
+          <LineChart data={formatChartData(timelineData, "heart_rate")}>
+            <Line type="monotone" dataKey="value" stroke="#ef4444" name="Heart Rate (bpm)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "bp":
+        return (
+          <LineChart
+            data={timelineData
+              .map((entry) => ({
+                date: entry.date,
+                systolic: parseFloat(entry.bp_systolic),
+                diastolic: parseFloat(entry.bp_diastolic),
+              }))
+              .filter((d) => !isNaN(d.systolic) && !isNaN(d.diastolic))}
+          >
+            <Line type="monotone" dataKey="systolic" stroke="#10b981" name="Systolic (mmHg)" />
+            <Line type="monotone" dataKey="diastolic" stroke="#6366f1" name="Diastolic (mmHg)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "spo2":
+        return (
+          <LineChart data={formatChartData(timelineData, "spo2")}>
+            <Line type="monotone" dataKey="value" stroke="#3b82f6" name="SpO2 (%)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "sleep":
+        return (
+          <LineChart data={formatChartData(timelineData, "sleep_hours")}>
+            <Line type="monotone" dataKey="value" stroke="#f59e0b" name="Sleep (hrs)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "weight":
+        return (
+          <LineChart data={formatChartData(timelineData, "weight")}>
+            <Line type="monotone" dataKey="value" stroke="#a855f7" name="Weight (kg)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "temperature":
+        return (
+          <LineChart data={formatChartData(timelineData, "temperature")}>
+            <Line type="monotone" dataKey="value" stroke="#f43f5e" name="Temperature (°C)" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+          </LineChart>
+        );
+
+      case "sugar":
+  return (
+    <LineChart
+      data={timelineData
+        .map((entry) => ({
+          date: entry.date,
+          fasting: parseFloat(entry.blood_sugar),
+          post_meal: parseFloat(entry.post_meal),
+        }))
+        .filter((d) => !isNaN(d.fasting) || !isNaN(d.post_meal))}
+    >
+      {!timelineData.every((d) => isNaN(d.blood_sugar)) && (
+        <Line
+          type="monotone"
+          dataKey="fasting"
+          stroke="#8b5cf6"
+          name="Fasting (mg/dL)"
+        />
+      )}
+      {!timelineData.every((d) => isNaN(d.post_meal)) && (
+        <Line
+          type="monotone"
+          dataKey="post_meal"
+          stroke="#ec4899"
+          name="Post Meal (mg/dL)"
+        />
+      )}
+      <CartesianGrid stroke="#ccc" />
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Tooltip />
+      <Legend />
+    </LineChart>
+  );
+
+
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className={container}>
+  <div className="min-h-screen bg-gray-50">
+    {/* ✅ Top Navbar */}
+    <nav className="bg-white shadow px-4 py-3 flex justify-between items-center">
+      <h1 className="text-xl font-semibold text-gray-800">LifePulse Dashboard</h1>
+      <div className="space-x-4">
+        <button
+          onClick={() => {
+        localStorage.removeItem("authTokens");    // Clears tokens
+        navigate("/", { replace: true }); // Redirect to home + replace history
+      }}
+      className={addButton}
+        >
+          Home
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem("authTokens");
+            window.location.href = "/login";
+          }}
+          className="text-red-500 hover:underline"
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
+
+    {/* ✅ Dashboard Content */}
+    <div className={`${container} max-w-6xl mx-auto px-4 py-6`}>
       <div className={headerRow}>
         <h1 className={welcomeText}>Welcome, {user?.username || "User"} 👋</h1>
         <button onClick={() => navigate("/vitals")} className={addButton}>
@@ -108,37 +285,59 @@ const Dashboard = () => {
       </div>
 
       <div className={chartContainer}>
-        <h2 className={sectionTitle}>Heart Rate Trend</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={formatChartData(timelineData, "heart_rate")}>
-            <Line type="monotone" dataKey="value" stroke="#ef4444" />
-            <CartesianGrid stroke="#ccc" />
-            <XAxis dataKey="date" />
-            <YAxis domain={["auto", "auto"]} />
-            <Tooltip />
-            <Legend />
-          </LineChart>
-        </ResponsiveContainer>
+        <h2 className={sectionTitle}>Vitals Trend</h2>
+
+        <div className="flex overflow-x-auto whitespace-nowrap border-b border-gray-300 mb-4 no-scrollbar">
+          {chartTabs.map((tab) => (
+            <div
+              key={tab.key}
+              onClick={() => setSelectedChart(tab.key)}
+              className={`inline-block px-4 py-2 mr-2 rounded-t-lg cursor-pointer ${
+                selectedChart === tab.key
+                  ? "bg-white font-semibold border-t border-l border-r"
+                  : "bg-gray-100"
+              }`}
+            >
+              {tab.label}
+            </div>
+          ))}
+        </div>
+
+        <div {...swipeHandlers} className="w-full h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            {renderChart()}
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className={alertsContainer}>
-        <h2 className={sectionTitle}>Recent Alerts</h2>
-        {alerts.length > 0 ? (
-          <ul className="space-y-2">
-            {alerts.map((alert, idx) => (
-              <li key={idx} className={alertItem}>
-                [{alert.vital_type.toUpperCase()}] {alert.message}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-sm">No alerts to show.</p>
-        )}
-      </div>
+  <h2 className={sectionTitle}>Recent Alerts</h2>
+  {alerts.length > 0 ? (
+    <>
+      <ul className="space-y-2">
+        {(showAllAlerts ? alerts : alerts.slice(0, 5)).map((alert, idx) => (
+          <li key={idx} className={alertItem}>
+            [{alert.vital_type.toUpperCase()}] {alert.message}
+          </li>
+        ))}
+      </ul>
+      {alerts.length > 5 && (
+        <button
+          onClick={() => setShowAllAlerts(!showAllAlerts)}
+          className="text-sm text-blue-500 mt-2 hover:underline"
+        >
+          {showAllAlerts ? "Show Less" : "Show More"}
+        </button>
+      )}
+    </>
+  ) : (
+    <p className="text-gray-500 text-sm">No alerts to show.</p>
+  )}
+</div>
 
-      <CSVExport />
+      <ReportExport/>
     </div>
-  );
-};
-
+  </div>
+);
+}
 export default Dashboard;

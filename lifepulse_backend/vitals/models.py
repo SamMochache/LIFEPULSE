@@ -70,7 +70,7 @@ class HeartRateRecord(models.Model):
 
 class StepCountRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     steps = models.PositiveIntegerField()
 
     def __str__(self):
@@ -78,7 +78,7 @@ class StepCountRecord(models.Model):
 
 class SpO2Record(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     spo2 = models.DecimalField(max_digits=5, decimal_places=2)  # e.g., 98.75%
 
     def __str__(self):
@@ -86,7 +86,7 @@ class SpO2Record(models.Model):
 
 class BodyTemperatureRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     temperature = models.DecimalField(max_digits=4, decimal_places=1)  # e.g., 37.2°C
 
     def __str__(self):

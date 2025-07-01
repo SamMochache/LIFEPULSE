@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import (
+    ExportVitalPDFView,
     AlertViewSet,
     BodyTemperatureRecordViewSet,
     ExportVitalCSVView,
@@ -13,7 +14,8 @@ from .views import (
     BloodPressureRecordViewSet,
     BloodSugarRecordViewSet,
     HealthTimelineView,
-    RegisterUserView,  # ✅ make sure to import this too 
+    RegisterUserView,
+      # ✅ make sure to import this too 
      # ✅ make sure to import this too
 )
 
@@ -34,5 +36,6 @@ urlpatterns = router.urls + [
     path('timeline/', HealthTimelineView.as_view(), name='health-timeline'),
     path("export/", ExportVitalCSVView.as_view(), name="vital-export"),
     path("register/", RegisterUserView.as_view(), name="register"),
+    path("export/pdf/", ExportVitalPDFView.as_view(), name="vital-export-pdf"),
     
 ]

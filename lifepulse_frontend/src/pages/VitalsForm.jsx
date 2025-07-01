@@ -181,30 +181,52 @@ const VitalsForm = () => {
       );
 
     case "spo2":
-      return (
-        <input
-          type="number"
-          name="spo2"
-          value={formData.spo2 || ""}
-          onChange={handleChange}
-          placeholder="SpO₂ (%)"
-          required
-          className={input}
-        />
-      );
+  return (
+    <>
+      <input
+        type="date"
+        name="date"
+        value={formData.date || ""}
+        onChange={handleChange}
+        required
+        className={input}
+      />
+      <input
+        type="number"
+        name="spo2"
+        value={formData.spo2 || ""}
+        onChange={handleChange}
+        placeholder="SpO₂ (%)"
+        required
+        className={input}
+      />
+    </>
+  );
+
 
     case "body_temperature":
-      return (
-        <input
-          type="number"
-          name="temperature"
-          value={formData.temperature || ""}
-          onChange={handleChange}
-          placeholder="Temperature (°C)"
-          required
-          className={input}
-        />
-      );
+  return (
+    <>
+      <input
+        type="date"
+        name="date"
+        value={formData.date || ""}
+        onChange={handleChange}
+        required
+        className={input}
+      />
+      <input
+        type="number"
+        name="temperature"
+        value={formData.temperature || ""}
+        onChange={handleChange}
+        placeholder="Temperature (°C)"
+        required
+        className={input}
+      />
+    </>
+  );
+
 
     case "sleep":
       return (

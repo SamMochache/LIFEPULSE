@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     shared-mime-info \
     fonts-liberation \
     fonts-dejavu-core \
+    libpng-dev \
+    libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

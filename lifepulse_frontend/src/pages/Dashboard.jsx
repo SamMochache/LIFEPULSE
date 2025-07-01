@@ -233,7 +233,34 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={container}>
+  <div className="min-h-screen bg-gray-50">
+    {/* ✅ Top Navbar */}
+    <nav className="bg-white shadow px-4 py-3 flex justify-between items-center">
+      <h1 className="text-xl font-semibold text-gray-800">LifePulse Dashboard</h1>
+      <div className="space-x-4">
+        <button
+          onClick={() => {
+        localStorage.removeItem("authTokens");    // Clears tokens
+        navigate("/", { replace: true }); // Redirect to home + replace history
+      }}
+      className={addButton}
+        >
+          Home
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem("authTokens");
+            window.location.href = "/login";
+          }}
+          className="text-red-500 hover:underline"
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
+
+    {/* ✅ Dashboard Content */}
+    <div className={`${container} max-w-6xl mx-auto px-4 py-6`}>
       <div className={headerRow}>
         <h1 className={welcomeText}>Welcome, {user?.username || "User"} 👋</h1>
         <button onClick={() => navigate("/vitals")} className={addButton}>
@@ -299,7 +326,7 @@ const Dashboard = () => {
 
       <CSVExport />
     </div>
-  );
-};
-
+  </div>
+);
+}
 export default Dashboard;
